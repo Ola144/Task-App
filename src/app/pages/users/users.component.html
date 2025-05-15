@@ -1,0 +1,177 @@
+<div class="m-6">
+    <div class="flex justify-between items-center mb-5 mx-10 stick">
+        <h2 class="text-2xl text-dark-800 font-bold">Users List</h2>
+        <div class="gap-2">
+            <button title="Add New User"
+                class="rounded-md p-2 bg-yellow-500 text-white  transition ease-in 0.5s hover:bg-yellow-600"
+                (click)="openCreateNewUserForm()"><i class="fa fa-user-plus text-lg"></i> Add New User</button>
+        </div>
+    </div>
+    <hr class="bg-yellow-200 h-1 mx-10">
+    <div class="my-4 mx-3 w-96">
+        <input id="search" class="w-full p-1 border-2 border-yellow-400 rounded-md" name="summary"
+            placeholder="Search by name..." #inputText (input)="filterUser(inputText.value)">
+    </div>
+    <div class="overflow-auto mt-5 mx-4 hidden lg:block">
+        <table class="border-collapse border border-gray-400 w-full">
+            <thead class="bg-gray-900 text-white">
+                <tr>
+                    <th class="border border-gray-400">S/N</th>
+                    <th class="border border-gray-400">Full Name</th>
+                    <th class="border border-gray-400">Email Id</th>
+                    <th class="border border-gray-400">Password</th>
+                    <th class="border border-gray-400">Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-black p-2">
+                @for (item of filteredUser; track $index) {
+                <tr>
+                    <td class="border border-gray-400 p-2 whitespace-nowrap">{{$index+1}}</td>
+                    <td class="border border-gray-400 p-2 whitespace-nowrap">{{item.fullName}}</td>
+                    <td class="border border-gray-400 p-2 whitespace-nowrap">{{item.emailId}}</td>
+                    <td class="border border-gray-400 p-2 whitespace-nowrap">{{item.password}}</td>
+                    <td class="border border-gray-400 p-2 whitespace-nowrap">
+                        <i class="fa fa-edit mr-2 text-green-900 text-lg cursor-pointer" (click)="onEdit(item)"></i>
+                        <i class="fa fa-trash ml-2 text-red-900 text-lg cursor-pointer" (click)="onDelete()"></i>
+                    </td>
+                </tr>
+                }
+
+            </tbody>
+        </table>
+    </div>
+
+    <div class="w-full mt-5 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:hidden">
+        @for (item of filteredUser; track $index) {
+        <div class="bg-white px-5 pb-4 rounded-lg shadow-lg relative">
+            <span class="absolute top-0 left-0 bg-yellow-200 rounded-xl p-1 font-bold text-lg">{{$index+1}}</span>
+            <div class="flex justify-between items-center mt-10">
+                <h4 class="text-black font-semibold text-lg">Full Name:</h4>
+                <p class="text-gray-500 font-bold text-lg">{{item.fullName}}</p>
+            </div>
+            <div class="flex justify-between items-center">
+                <h4 class="text-black font-semibold text-lg">Email Id:</h4>
+                <p class="text-gray-500 font-bold text-lg">{{item.emailId}}</p>
+            </div>
+            <div class="flex justify-between items-center">
+                <h4 class="text-black font-semibold text-lg">Password:</h4>
+                <p class="text-gray-500 font-bold text-lg">{{item.password}}</p>
+            </div>
+            <div class="flex justify-end items-center mt-4">
+                <i class="fa fa-edit mr-2 text-green-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
+                    (click)="onEdit(item)"></i>
+                <i class="fa fa-trash ml-2 text-red-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
+                    (click)="onDelete()"></i>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+
+@if(isCreateNewUserForm){
+<div
+    class="w-screen min-h-screen bg-gray-800/50  absolute top-0 left-0 flex justify-center items-center z-20 min-h-screen min-w-screen">
+    <div class="bg-white w-96 shadow-lg bg-white px-8 py-4 rounded-md my-2">
+        <div class="flex justify-between w-full">
+            <h3 class="text-black font-bold text-xl">New User</h3>
+            <button class="bg-black text-white p-2 rounded-xl" (click)="closeCreateNewUserForm()">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+        </div>
+        <div class="mt-10 mb-4">
+            <form #userForm="ngForm">
+                <div class="my-2">
+                    <label for="fullName" class="text-black text-lg font-bold">Full Name</label>
+                    <input id="fullName" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                        placeholder="Full Name" name="fullName" [(ngModel)]="userObj.fullName" required
+                        #fullName="ngModel" [class]="fullName.invalid && fullName.touched ? 'is-invalid' : ''">
+                    @if (fullName.invalid && fullName.touched) {
+                    <div class="text-red-800 text-sm">
+                        @if (fullName.errors?.['required']) {
+                        <span>*Full name is a required field!</span>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="my-2">
+                    <label for="emailId" class="text-black text-lg font-bold">Email Id</label>
+                    <input id="emailId" type="email" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                        placeholder="Email Id" name="emailId" [(ngModel)]="userObj.emailId" required email
+                        #emailId="ngModel" [class]="emailId.invalid && emailId.touched ? 'is-invalid' : ''">
+                    @if (emailId.invalid && emailId.touched) {
+                    <div class="text-red-800 text-sm">
+                        @if (emailId.errors?.['required']) {
+                        <span>*Email is a required field!</span>
+                        }
+                        @if (emailId.errors?.['email']) {
+                        <span>*Please provide a valid email address!</span>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="my-2 relative">
+                    <label for="password" class="text-black text-lg font-bold">Password</label>
+                    <input id="password" type="password" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                        #userPassword placeholder="Password" name="password" [(ngModel)]="userObj.password" required
+                        #password="ngModel" [class]="password.invalid && password.touched ? 'is-invalid' : ''">
+                    @if (password.invalid && password.touched) {
+                    <div class="text-red-800 text-sm">
+                        @if (password.errors?.['required']) {
+                        <span>*Password is a required field!</span>
+                        }
+                    </div>
+                    }
+                    @if (isShowIcon) {
+                    <i (click)="showLoginPassword()"
+                        class="fa fa-eye text-4xl text-black absolute top-9 right-2 cursor-pointer"></i>
+                    }
+                    <i (click)="showLoginPassword()"
+                        class="fa fa-eye-slash text-2xl text-black absolute top-9 right-2 cursor-pointer"></i>
+                </div>
+                @if (userObj.userId == 0) {
+                <button
+                    class="text-center w-full bg-yellow-400 hover:bg-yellow-600 text-white font-bold text-lg py-3 my-3 rounded-lg flex justify-center items-center"
+                    [class]="userForm.invalid || isCreateNewUserLoading ? 'bg-yellow-100 hover:bg-yellow-100 cursor-not-allowed' : ''"
+                    (click)="addNewUser()" [disabled]="userForm.invalid || isCreateNewUserLoading">
+                    @if (isCreateNewUserLoading) {
+                    <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;">
+                    }
+                    <i class="fa fa-user-plus text-lg mr-4"></i> Add User</button>
+                } @else {
+                <button
+                    class="text-center w-full bg-gray-400 hover:bg-gray-600 text-white font-bold text-lg py-3 my-3 rounded-lg flex justify-center items-center"
+                    [class]="userForm.invalid || isUpdateNewUserLoading ? 'bg-gray-100 hover:bg-gray-100 cursor-not-allowed' : ''"
+                    (click)="updateUser()" [disabled]="userForm.invalid || isUpdateNewUserLoading">
+                    @if (isUpdateNewUserLoading) {
+                    <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;">
+                    }
+                    <i class="fa fa-user-plus text-lg mr-4"></i> Update User</button>
+                }
+
+
+            </form>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Confirm Delete User PopUp -->
+@if (isConfirmDelete) {
+<div class="w-screen min-h-screen bg-gray-800/50  absolute top-0 left-0 flex justify-center items-center z-20">
+    <div class="bg-white w-96 px-10 py-10 rounded-lg shadow-lg">
+        <p class="text-center my-4 text-md text-black">Are you sure want to delete the project?</p>
+        <div class="flex justify-end items-center my-2">
+            <button class="p-1 mr-3 bg-gray-500 text-white rounded-md" (click)="isConfirmDelete = false"
+                [disabled]="isDeleteUserLoading"
+                [class]="isDeleteUserLoading ? ' bg-gray-100 cursor-not-allowed':''">Cancel</button>
+            <button class="p-1 mr-3 bg-red-500 text-white flex justify-center items-center rounded-md"
+                [class]="isDeleteUserLoading ? ' bg-red-100 cursor-not-allowed':''" (click)="deleteUserById()"
+                [disabled]="isDeleteUserLoading">
+                @if (isDeleteUserLoading) {
+                <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;">
+                }
+                Delete</button>
+        </div>
+    </div>
+</div>
+}

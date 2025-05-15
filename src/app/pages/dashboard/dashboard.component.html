@@ -1,0 +1,83 @@
+<div class="m-6">
+    <div class="flex justify-between items-center mb-5 stick">
+        <div class="my-5">
+            <button title="Create Task"
+                class="rounded-md p-2 bg-yellow-500 text-white  transition ease-in 0.5s hover:bg-yellow-600"
+                (click)="openCreateTaskForm()">Create</button>
+        </div>
+        <div class="rounded-md text-white cursor-pointer transition 5s ease-in-out projectNameDiv relative">
+            <p class="bg-black rounded-md p-2 m-0">Project Name <i class="fa fa-chevron-down ml-6"></i></p>
+            <ul class="list-none p-1 absolute rounded-md bg-black w-full transition 5s ease-in-out top-8">
+                @for (item of projectList; track $index) {
+                <li class="border-t-2 hover:text-gray-400 border-white mt-2 px-1" (click)="setProject(item)"
+                    [value]="item.projectId">
+                    {{item.projectName}}</li>
+                }
+            </ul>
+        </div>
+    </div>
+    <hr class="bg-yellow-200 h-1">
+    <h2 class="text-2xl text-black font-bold ml-4 my-4">
+        {{selectedProjectData?.projectName}}</h2>
+    <div class="py-5 px-10 mt-5 mb-10 mx-auto w-full">
+        <div class="grid gap-2 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:grid-cols-1 sm:grid-cols-1 w-full">
+            @for (sta of status; track $index) {
+            <div class="rounded-lg border-2 border-gray-500 w-full h-fit">
+                <div class="rounded-t-lg px-2 py-2 bg-gray-200 border-b-2 border-gray-500">
+                    <p class="text-black font-md font-light">{{sta}} <span class="text-yellow-900 font-bold">
+                            {{filterTicket(sta).length}} </span> issue</p>
+                </div>
+                @for (item of filterTicket(sta); track $index) {
+                <div class="rounded-lg bg-gray-300 border-2 border-gray-400 m-3 shadow-outer px-1 py-1">
+                    <p class="text-md font-bold text-black my-4 ml-2">{{item.summary}}</p>
+                    <div class="flex justify-between items-center m-2">
+                        <span class="text-sm text-gray-800"> <b></b></span>
+                        <span class="text-sm text-gray-800">
+                            <b>Assigned To: </b>
+                            {{item.assignedTo}}
+                            <!-- @if (getTicketAssignedByUserId(loggedUserData.userId)) {
+                            {{loggedUserData.fullName
+                                }}
+                            } -->
+                        </span>
+                    </div>
+                    <p class="flex justify-end text-gray-700 text-lg">5 hrs</p>
+                    <div class="flex justify-end items-center mt-4 pt-2 border-t-4 border-yell-900">
+                        <i class="fa fa-edit mr-2 text-green-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
+                            (click)="onEdit(item)"></i>
+                        <i class="fa fa-trash ml-2 text-red-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
+                            (click)="onDelete()"></i>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="w-full">
+    @if (isCreateTaskForm) {
+    <app-create-task (closeCreateTaskForm)="closeCreateTaskForm()" [onEditTicket]="selectedTicket"></app-create-task>
+    }
+</div>
+
+<!-- Confirm Delete Section -->
+@if (isConfirmDelete) {
+<div class="w-screen min-h-screen bg-gray-800/50  absolute top-0 left-0 flex justify-center items-center z-20">
+    <div class="bg-white w-96 px-10 py-10 rounded-lg shadow-lg">
+        <p class="text-center my-4 text-md text-black">Are you sure want to delete the project?</p>
+        <div class="flex justify-end items-center my-2">
+            <button class="p-1 mr-3 bg-gray-500 hover:bg-gray-700 text-white rounded-md"
+                (click)="isConfirmDelete = false" [disabled]="isDeleteTicketLoading"
+                [class]="isDeleteTicketLoading ? ' bg-gray-100 cursor-not-allowed':''">Cancel</button>
+            <button class="p-1 mr-3 bg-red-500 hover:bg-red-700 text-white flex justify-center items-center rounded-md"
+                [class]="isDeleteTicketLoading ? ' bg-red-100 hover:bg-red-100 cursor-not-allowed':''"
+                (click)="deleteTicketById()" [disabled]="isDeleteTicketLoading">
+                @if (isDeleteTicketLoading) {
+                <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;">
+                }
+                Delete</button>
+        </div>
+    </div>
+</div> }

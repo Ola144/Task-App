@@ -1,0 +1,46 @@
+@import "../node_modules/tailwindcss/base.css";
+@import "../node_modules/tailwindcss/components.css";
+@import "../node_modules/tailwindcss/utilities.css";
+
+@import "../node_modules/font-awesome/css/font-awesome.css";
+@import "ngx-toastr/toastr";
+@import "../node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css";
+
+
+*  {
+    scroll-behavior: smooth;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.active {
+    border-right: 4px solid yellow;
+}
+
+.is-invalid {
+    border: 2px solid red !important;
+}
+
+/* @media (max-width: 768px){
+    .formDiv {
+        width: 60% !important;
+    }
+}
+
+@media (max-width: 640px){
+    .formDiv {
+        width: 80% !important;
+    }
+} */
+
+@media (max-width: 800px) {
+    .task {
+        display: grid !important;
+        grid-column: 1 !important;
+    }
+}

@@ -1,0 +1,122 @@
+li, i {
+    cursor: pointer;
+}
+
+.sidebar {
+    width: 200px;
+    min-height: 100vh;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    transition: 0.5s ease-in-out;
+}
+
+.sidebar.collapsed {
+    width: 100px;
+}
+
+.sidebar.collapsed ul li button {
+    display: none;
+}
+
+.sidebar.collapsed span {
+    display: none;
+}
+
+.sidebar.collapsed .logOutBtn {
+    display: none;
+}
+
+.sidebar .arrowIcon {
+    margin-left: 90px;
+}
+
+.projectNameDiv ul li{
+    display: none;
+}
+
+.projectNameDiv:hover ul li {
+    display: block;
+}
+
+@media (max-width: 1280px) {
+    .toggleBtn {
+        display: none;
+    }
+
+    .sidebar.collapsed {
+        width: 200px;
+    }
+
+    .sidebar.collapsed ul li button {
+        display: inline-block;
+    }
+
+    .sidebar.collapsed span {
+        display: inline-block;
+    }
+
+    .sidebar.collapsed .logOutBtn {
+        display: inline-block;
+    }
+}
+
+@media (max-width: 1024px) {
+    .toggleBtn {
+        display: none;
+    }
+
+    .sidebar.collapsed {
+        width: 200px;
+    }
+
+    .sidebar.collapsed ul li button {
+        display: inline-block;
+    }
+
+    .sidebar.collapsed span {
+        display: inline-block;
+    }
+
+    .sidebar.collapsed .logOutBtn {
+        display: inline-block;
+    }
+}
+
+@media (max-width: 768px){
+    .toggleBtn {
+        display: block !important;
+    }
+
+    .sidebar {
+        width: 100px;
+        transition: 0.5s ease-in-out;
+    }
+
+    .sidebar ul li button {
+        display: none;
+    }
+
+    .sidebar span {
+        display: none;
+    }
+
+    .sidebar .logOutBtn {
+        display: none;
+    }
+
+    .sidebar .arrowIcon {
+        margin-left: 5px;
+    }
+
+    .sidebar.collapsed .arrowIcon {
+        margin-left: 90px;
+    }
+}
+
+@media (max-width: 1400px) {
+    .toggleBtn {
+        display: none;
+    }
+}

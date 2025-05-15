@@ -1,0 +1,161 @@
+<div class="bg-gray-800/50 absolute top-0 left-0 flex justify-center items-center z-20 min-h-screen w-screen py-10">
+    <div class="bg-white w-96 rounded-md shadow-lg px-8 py-4">
+        <div class="flex justify-between w-full">
+            <h3 class="text-black font-bold text-xl">Create a New Task</h3>
+            <button class="bg-black text-white p-2 rounded-xl" (click)="closeCreateTaskFormBtn()">
+                <i class="fa fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="mt-10 mb-4 formDiv w-full">
+            <form [formGroup]="taskForm" class="w-full mx-auto">
+                <div class="my-2 w-full pb-5 border-b-2 border-gray-500">
+                    <label for="project" class="text-black text-lg font-bold">Project</label>
+                    <select id="project" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                        name="projectId" formControlName="projectId"
+                        [class]="taskForm.get('projectId')?.invalid && taskForm.get('projectId')?.touched ? 'is-invalid' : ''">
+                        <option value="" selected>Select</option>
+                        @for (item of projectList; track $index) {
+                        <option [value]="item.projectId">{{item.projectName}}</option>
+                        }
+                    </select>
+                    @if (taskForm.get('projectId')?.invalid && taskForm.get('projectId')?.touched) {
+                    <div class="text-red-500 font-bold text-sm">
+                        @if (taskForm.controls['projectId'].errors?.['required']) {
+                        <span>Project Name is a required field!</span>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="my-2 w-full">
+                    <!-- <div class="flex justify-between"> -->
+                    <!-- <div class="my-2 w-full mr-1">
+                            <label for="issueType" class="text-black text-lg font-bold">Issue Type</label>
+                            <select id="issueType" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md">
+                                <option value="">Select</option>
+                                @for (item of issueType; track $index) {
+                                <option [value]="$index">{{item}}</option>
+                                }
+                            </select>
+                        </div> -->
+                    <div class="my-2 w-full">
+                        <label for="status" class="text-black text-lg font-bold">Status</label>
+                        <select id="status" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                            name="status" formControlName="status"
+                            [class]="taskForm.get('status')?.invalid && taskForm.get('status')?.touched ? 'is-invalid' : ''">
+                            <option value="" selected>Select</option>
+                            @for (item of status; track $index) {
+                            <option>{{item}}</option>
+                            }
+                        </select>
+                        @if (taskForm.get('status')?.invalid && taskForm.get('status')?.touched) {
+                        <div class="text-red-500 font-bold text-sm">
+                            @if (taskForm.controls['status'].errors?.['required']) {
+                            <span>Status is a required field!</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                    <!-- </div> -->
+                </div>
+                <div class="my-2 w-full">
+                    <div class="my-2 w-full">
+                        <label for="summary" class="text-black text-lg font-bold">Summary</label>
+                        <input id="summary" class="w-full p-1 border-2 border-yellow-400 rounded-md" name="summary"
+                            formControlName="summary"
+                            [class]="taskForm.get('summary')?.invalid && taskForm.get('summary')?.touched ? 'is-invalid' : ''">
+                        @if (taskForm.get('summary')?.invalid && taskForm.get('summary')?.touched) {
+                        <div class="text-red-500 font-bold text-sm">
+                            @if (taskForm.controls['summary'].errors?.['required']) {
+                            <span>Summary is a required field!</span>
+                            }
+                        </div>
+                        }
+                    </div>
+                </div>
+                <div class="my-2 w-full">
+                    <label for="description" class="text-black text-lg font-bold">Description</label>
+                    <textarea id="description" class="w-full p-1 border-2 border-yellow-400 rounded-md" cols="30"
+                        rows="5" name="description" formControlName="description"
+                        [class]="taskForm.get('description')?.invalid && taskForm.get('description')?.touched ? 'is-invalid' : ''"></textarea>
+                    @if (taskForm.get('description')?.invalid && taskForm.get('description')?.touched) {
+                    <div class="text-red-500 font-bold text-sm">
+                        @if (taskForm.controls['description'].errors?.['required']) {
+                        <span>Description is a required field!</span>
+                        }
+                    </div>
+                    }
+                </div>
+                <div class="my-2 w-full">
+                    <div class="flex justify-between">
+                        <div class="my-2 w-full mr-1">
+                            <label for="assignee" class="text-black text-lg font-bold">Assignee</label>
+                            <select id="assignee" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                                name="assignedTo" formControlName="assignedTo"
+                                [class]="taskForm.get('assignedTo')?.invalid && taskForm.get('assignedTo')?.touched ? 'is-invalid' : ''">
+                                <option value="" selected>Select</option>
+                                @for (item of userList; track $index) {
+                                <option [value]="item.userId">{{item.fullName}}</option>
+                                }
+                            </select>
+                            @if (taskForm.get('assignedTo')?.invalid && taskForm.get('assignedTo')?.touched) {
+                            <div class="text-red-500 font-bold text-sm">
+                                @if (taskForm.controls['assignedTo'].errors?.['required']) {
+                                <span>ProJect Name is a required field!</span>
+                                }
+                            </div>
+                            }
+                        </div>
+                        <div class="my-2 w-full">
+                            <label for="reporter" class="text-black text-lg font-bold">Reporter</label>
+                            <select id="reporter" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                                name="createdBy" formControlName="createdBy"
+                                [class]="taskForm.get('createdBy')?.invalid && taskForm.get('createdBy')?.touched ? 'is-invalid' : ''">
+                                @for (item of userList; track $index) {
+                                <option [value]="item.userId">{{item.fullName}}</option> }
+                            </select>
+                            @if (taskForm.get('createdBy')?.invalid && taskForm.get('createdBy')?.touched) {
+                            <div class="text-red-500 font-bold text-sm">
+                                @if (taskForm.controls['createdBy'].errors?.['required']) {
+                                <span>ProJect Name is a required field!</span>
+                                }
+                            </div>
+                            }
+                            <!-- {{taskForm.get('createdBy')?.value}} -->
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="my-2 w-full">
+                    <label for="attachment" class="text-black text-lg font-bold">Attachment</label>
+                    <span><i class="fa fa-cloud-upload"></i> Drop files to attach or
+                    <label>
+                        <input type="file" id="attachment" class="w-full p-1 border-2 border-yellow-400 rounded-md">
+                        <i class="fa fa-cloud-upload"></i>
+                    </label>
+                    </span>
+                </div> -->
+                @if (taskForm.get('ticketId')?.value == 0) {
+                <button
+                    class="text-center w-full bg-yellow-400 hover:bg-yellow-600 text-white font-bold text-lg py-3 my-3 rounded-lg flex justify-center items-center"
+                    [disabled]="taskForm.invalid ||isCreateTicketLoading"
+                    [class]="taskForm.invalid ||isCreateTicketLoading ? 'bg-yellow-100 hover:bg-yellow-100 cursor-not-allowed' : ''"
+                    (click)="createTicket()">
+                    @if (isCreateTicketLoading) {
+                    <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;"> }
+                    Create Ticket</button>
+                } @else {
+                <button
+                    class="text-center w-full bg-gray-400 hover:bg-gray-600 text-white font-bold text-lg py-3 my-3 rounded-lg flex justify-center items-center"
+                    [disabled]="taskForm.invalid || isUpdateTicketLoading"
+                    [class]="taskForm.invalid ||isUpdateTicketLoading ? 'bg-gray-100 hover:bg-gray-100 cursor-not-allowed' : ''"
+                    (click)="updateTicket()">
+                    @if (isUpdateTicketLoading) {
+                    <img src="/public/images/spinner.gif" style="width: 24px; margin-right: 4px;"> }
+                    Update Ticket</button>
+                }
+
+                <!-- {{taskForm.get('ticketId')?.value}} -->
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,7 @@
+.projectNameDiv ul li{
+    display: none;
+}
+
+.projectNameDiv:hover ul li {
+    display: block;
+}

@@ -1,0 +1,62 @@
+<div
+    class="bg-[url(/public/images/bg-img.jpg)] bg-center bg-no-repeat bg-cover min-h-screen min-w-full flex justify-center items-center">
+    <div class="bg-white w-96  px-10 py-10 rounded-lg shadow-lg">
+        <h3 class="text-xl font-bold text-black text-center mb-6 uppercase"> Login to your account</h3>
+        <form #loginForm="ngForm" class="my-2">
+            <div class="my-2">
+                <input id="emailId" type="email" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                    placeholder="Email Address" required email name="emailId" [(ngModel)]="userObj.emailId"
+                    #emailId="ngModel" [class]="emailId.invalid && emailId.touched ? 'is-invalid' : ''">
+                @if (emailId.invalid && emailId.touched) {
+                <div class="text-red-600 text-sm font-bold">
+                    @if (emailId.errors?.['required']) {
+                    <span>*Email is a required field!</span>
+                    }
+                    @if (emailId.errors?.['email']) {
+                    <span>*Please provide a valid email!</span>
+                    }
+                </div>
+                }
+            </div>
+            <div class="my-2">
+                <input id="fullName" type="text" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                    placeholder="Full Name" required name="fullName" [(ngModel)]="userObj.fullName" #fullName="ngModel"
+                    [class]="fullName.invalid && fullName.touched ? 'is-invalid' : ''">
+                @if (fullName.invalid && fullName.touched) {
+                <div class="text-red-600 text-sm font-bold">
+                    @if (fullName.errors?.['required']) {
+                    <span>*Full Name is a required field!</span>
+                    }
+                </div>
+                }
+            </div>
+            <div class="my-2 relative">
+                <input id="password" type="password" class="w-full p-1 border-2 border-yellow-400 rounded-md"
+                    placeholder="Password" required name="password" [(ngModel)]="userObj.password" #password="ngModel"
+                    #loginPassword [class]="password.invalid && password.touched ? 'is-invalid' : ''">
+                @if (isShowIcon) {
+                <i (click)="showLoginPassword()"
+                    class="fa fa-eye text-4xl text-black absolute top-3 right-2 cursor-pointer"></i>
+                }
+                <i (click)="showLoginPassword()"
+                    class="fa fa-eye-slash text-2xl text-black absolute top-3 right-2 cursor-pointer"></i>
+                @if (password.invalid && password.touched) {
+                <div class="text-red-600 text-sm font-bold">
+                    @if (password.errors?.['required']) {
+                    <span>*Password is a required field!</span>
+                    }
+                </div>
+                }
+            </div>
+            <button
+                class="w-full bg-yellow-400 hover:bg-yellow-600 text-white font-bold text-lg py-3 my-3 rounded-lg flex gap-1 justify-center items-center"
+                [class]="loginForm.invalid || isLoginLoading ? 'bg-yellow-200 hover:bg-yellow-200 cursor-not-allowed' : ''"
+                (click)="loginUser()" [disabled]="loginForm.invalid || isLoginLoading">
+                @if (isLoginLoading) {
+                <img class="" style="width: 24px; height: 24px;" src="/public/images/spinner.gif" alt="">
+                }
+                <i class="fa fa-sign-in"></i> Login</button>
+        </form>
+
+    </div>
+</div>

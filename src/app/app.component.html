@@ -1,0 +1,11 @@
+<router-outlet></router-outlet>
+
+@if(showLoader){
+<div
+    class="w-screen min-h-screen bg-gray-800/50  absolute top-0 left-0 flex justify-center items-center z-20 min-h-screen min-w-screen">
+    <div class="w-60 bg-white p-4 flex justify-center items-center">
+        <span class="loader"></span>
+        Processing…
+    </div>
+</div>
+}

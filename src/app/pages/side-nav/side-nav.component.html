@@ -1,0 +1,62 @@
+<div class="bg-white sidebar" #sidebar>
+    <div class="mb-6 w-full flex justify-between border-b-2 border-black-100 w-full">
+        <div class="mb-2 p-2">
+            <i class="fa fa-renren mr-5 bg-yellow-300 text-black p-2 rounded-xl border-2 border-black "></i>
+            <span class="text-black-900 font-bold text-lg span">Task App</span>
+        </div>
+        <button class="mb-2 p-2 toggleBtn" (click)="toggleSideBar()">
+            <i class="fa fa-bars text-black-200 text-lg"></i>
+        </button>
+    </div>
+    <div class="mt-6 flex flex-col justify-between" style="height: 80vh;">
+        <div>
+            <ul class="w-full mb-3 text-md">
+                <li class="px-1 pb-3 border-b-2 border-black-200 h-full w-full hover:bg-yellow-400 hover:text-white"
+                    routerLink="/dashboard" routerLinkActive="active">
+                    <i title="Dashboard" class="fa fa-dashboard mr-5 pointer ml-4"></i>
+                    <button class="text-black-200">Dashboard</button>
+                </li>
+                <li class="px-1 pb-3 h-full w-full border-b-2 border-black-200 hover:bg-yellow-400 hover:text-white"
+                    routerLink="/users" routerLinkActive="active">
+                    <i title="Users" class="fa fa-users text-black-400 mr-5 pointer ml-4"></i> <button
+                        class="text-black-200">Users</button>
+                </li>
+                <li class="px-1 pb-3 h-full w-full hover:bg-yellow-400 hover:text-white" routerLink="/projects"
+                    routerLinkActive="active">
+                    <i title="Projects" class="fa fa-suitcase text-black-400 mr-5 pointer ml-4"></i> <button
+                        class="text-black-200">Projects</button>
+                </li>
+                <!-- <li
+                    class="px-1 pb-3 h-full w-full bg-black text-white relative cursor-pointer py-2 pl-2 projectNameDiv">
+                    <p class="rounded-md m-0 text-sm" style="font-size: 11px;">Your Works <i
+                            class="fa fa-chevron-down arrowIcon"></i></p>
+                    <ul
+                        class="list-none p-1 absolute rounded-md bg-black w-full transition 5s ease-in-out left-0 top-8">
+                        @for (item of projectList; track $index) {
+                        <li class="border-t-2 hover:text-gray-400 border-white mt-2 px-1" (click)="yourWorkMethod(item)"
+                            [value]="item.projectId">{{item.projectName}}</li>
+                        }
+                    </ul>
+
+                </li> -->
+            </ul>
+        </div>
+
+        <div class="w-full">
+            @if (isLoggedIn) {
+            <p class="text-yellow-500 mx-1 my-2 text-sm font-bold">
+                {{userData?.fullName.toUpperCase()}}
+            </p>
+            }
+            <hr class="bg-dark-400 w-full">
+            <li (click)="logOut()" class="h-full w-full hover:bg-yellow-400 hover:text-white text-black"
+                style="list-style: none; line-height: 2;">
+                <i title="Log out" class="fa fa-sign-out text-lg ml-4"></i>
+                <button class="p-2 text-lg text-bold logOutBtn">
+                    Log out
+                </button>
+            </li>
+
+        </div>
+    </div>
+</div>
