@@ -1,28 +1,42 @@
 <div class="m-6 min-h-screen">
-  <div class="flex justify-between items-center mb-5 stick">
-    @if (loggedUserData?.role == 'admin') {
-    <div class="my-5">
-      <button
-        title="Create Task"
-        class="rounded-md p-2 bg-yellow-500 text-white transition ease-in 0.5s hover:bg-yellow-600"
-        (click)="openCreateTaskForm()"
-      >
-        Create Ticket
-      </button>
-    </div>
-    }
-
-    <div
-      class="rounded-md text-white cursor-pointer transition 5s ease-in-out projectNameDiv relative"
-    >
-      <h2 class="text-2xl text-black font-bold">Tasks</h2>
+  <div class="container mx-auto px-4 py-5 lg:py-8">
+    <div class="top">
+      <div class="bg-yellow-500 rounded-xl border border-pink-100">
+        <div class="flex justify-center">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJv_DB8rALX7h051ivxfSpmaIWvdXZ-Hw6-w&s"
+            alt=""
+            class="w-20 my-3 rounded-full"
+          />
+        </div>
+        @if (isLoggedIn) {
+        <div class="">
+          <h1 class="text-center text-lg">
+            <span class="font-bold">Name: </span>
+            {{ user?.fullName }}
+          </h1>
+          <h1 class="text-center text-lg">
+            <span class="font-bold">Email: </span>
+            {{ user?.emailId }}
+          </h1>
+          <h1 class="text-center text-lg">
+            <span class="font-bold">Date: </span>
+            {{ user?.date }}
+          </h1>
+          <h1 class="text-center text-lg">
+            <span class="font-bold">Role: </span>
+            {{ user?.role }}
+          </h1>
+        </div>
+        }
+      </div>
     </div>
   </div>
-  <hr class="bg-yellow-200 h-1" />
-  <h2 class="text-2xl text-black font-bold ml-4 my-4">
-    {{ selectedProjectData?.projectName }}
-  </h2>
-  <div class="py-5 px-10 mt-5 mb-10 mx-auto w-full">
+
+  <div class="text-center text-3xl text-yellow-500 font-bold uppercase">
+    <h2>Your Task</h2>
+  </div>
+  <div class="py-5 px-10 mb-10 mx-auto w-full">
     <div
       class="grid gap-2 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:grid-cols-1 sm:grid-cols-1 w-full"
     >
@@ -34,12 +48,12 @@
           <p class="text-black font-md font-light">
             {{ sta }}
             <span class="text-yellow-900 font-bold">
-              {{ filterTicket(sta).length }}
+              {{ userTicket(sta).length }}
             </span>
             issue
           </p>
         </div>
-        @for (item of filterTicket(sta); track $index) {
+        @for (item of userTicket(sta); track $index) {
         <div
           class="rounded-lg bg-gray-300 border-2 border-gray-400 m-3 shadow-outer px-1 py-1"
         >
@@ -47,10 +61,10 @@
             {{ item.summary }}
           </p>
           <div class="flex justify-between items-center m-2">
-            <span class="text-sm text-gray-800"></span>
+            <span class="text-sm text-gray-800"> <b></b></span>
             <span class="text-sm text-gray-800">
               <b>Assigned To: </b>
-              {{ item.assignedToName.fullName }}
+              {{ user?.fullName }}
               <!-- @if (getTicketAssignedByUserId(loggedUserData.userId)) {
                             {{loggedUserData.fullName
                                 }}
@@ -58,14 +72,11 @@
             </span>
           </div>
           <p class="flex justify-end text-gray-700 text-lg">5 hrs</p>
-
           <div
             class="flex justify-end items-center mt-4 pt-2 border-t-4 border-yell-900"
           >
-            @if (loggedUserData?.role == 'admin' || item.assignedTo ==
-            loggedUserData?.uid) {
             <i
-              class="fa fa-edit text-green-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
+              class="fa fa-edit mr-2 text-green-900 text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
               (click)="onEdit(item)"
             ></i>
             <i
@@ -74,14 +85,8 @@
             ></i>
             <i
               class="fa fa-info-circle ml-2 text-white text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
-              [routerLink]="'/dashboard/' + item.ticketId"
+              [routerLink]="'/user/' + item.ticketId"
             ></i>
-            } @else {
-            <i
-              class="fa fa-info-circle ml-2 text-white text-lg cursor-pointer bg-yellow-300 hover:bg-yellow-500 rounded-lg p-2"
-              [routerLink]="'/dashboard/' + item.ticketId"
-            ></i>
-            }
           </div>
         </div>
         }

@@ -1,15 +1,38 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { MasterService } from '../../../service/master.service';
-import { IAPIResponse, ProjectModel, TicketModel, UserModel } from '../../../model/TaskApp';
+import {
+  IAPIResponse,
+  IProject,
+  ProjectModel,
+  TicketModel,
+  UserModel,
+} from '../../../model/TaskApp';
 import { ToastrService } from 'ngx-toastr';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { user } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-create-task',
   standalone: true,
   imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './create-task.component.html',
-  styleUrl: './create-task.component.css'
+  styleUrl: './create-task.component.css',
 })
 export class CreateTaskComponent implements OnInit, AfterViewInit {
   masterService: MasterService = inject(MasterService);
@@ -17,32 +40,34 @@ export class CreateTaskComponent implements OnInit, AfterViewInit {
 
   @Output() closeCreateTaskForm: EventEmitter<any> = new EventEmitter<any>();
   @Input() onEditTicket: any;
+  @Input() ticketId: any;
 
   userList: UserModel[] = [];
-  projectList: ProjectModel[] = [];
+  projectList: IProject[] = [];
 
-  loggedData: any;
+  loggedDataId: any;
+  loggedInUser: any;
 
-  status: string[] = ["To Do", "In Progress", "Done"];
-  issueType: string[] = ["Ticket", "Defect", "RnD Work"];
+  status: string[] = ['To Do', 'In Progress', 'Done'];
+  issueType: string[] = ['Ticket', 'Defect', 'RnD Work'];
 
   isCreateTicketLoading: boolean = false;
   isUpdateTicketLoading: boolean = false;
 
-  taskForm: FormGroup = new FormGroup({})
+  taskForm: FormGroup = new FormGroup({});
 
   constructor() {
     try {
-      const localData = localStorage.getItem('taskAppUser');
-      if (localData != null) {
+      const localData = localStorage.getItem('TaskUser');
+      if (localData !== null) {
         const parseData = JSON.parse(localData);
 
+        this.loggedInUser = JSON.parse(localData);
         // this.ticketObj.createdBy = parseData.userId;
-        this.taskForm.patchValue({ createdBy: parseData.userId });
-        this.loggedData = parseData;
+        this.taskForm.patchValue({ createdBy: parseData.uid });
+        this.loggedDataId = parseData;
       }
-    } catch (err) {
-      console.error(err)
+    } finally {
     }
 
     this.initializeForm();
@@ -52,20 +77,21 @@ export class CreateTaskComponent implements OnInit, AfterViewInit {
     this.getAllProjects();
     this.getAllUsers();
 
-    this.taskForm.patchValue({ createdBy: this.loggedData.userId });
+    this.taskForm.patchValue({ createdBy: this.loggedDataId.uid });
   }
 
   ngAfterViewInit(): void {
     if (this.onEditTicket) {
       // this.taskForm = this.onEditTicket;
       this.taskForm.patchValue({
-        ticketId: this.onEditTicket.ticketId,
         summary: this.onEditTicket.summary,
         status: this.onEditTicket.status,
         description: this.onEditTicket.description,
         assignedTo: this.onEditTicket.assignedTo,
+        assignedToName: this.onEditTicket.assignedToName,
         projectId: this.onEditTicket.projectId,
-        createdBy: this.loggedData.userId,
+        createdById: this.loggedDataId.uid,
+        createdByName: this.loggedDataId.fullName,
       });
       // this.ticketObj.createdBy = this.loggedData.userId;
     }
@@ -73,123 +99,112 @@ export class CreateTaskComponent implements OnInit, AfterViewInit {
 
   initializeForm() {
     this.taskForm = new FormGroup({
-      ticketId: new FormControl(0),
       createdDate: new FormControl(new Date()),
       summary: new FormControl('', Validators.required),
       status: new FormControl('', Validators.required),
       description: new FormControl('', Validators.required),
-      parentId: new FormControl(0),
-      storyPoint: new FormControl(0),
-      ticketGuid: new FormControl(''),
-      assignedTo: new FormControl(0, Validators.required),
-      createdBy: new FormControl(0, Validators.required),
-      projectId: new FormControl(0, Validators.required),
-    })
+      assignedTo: new FormControl('', Validators.required),
+      assignedToName: new FormControl(''),
+      createdById: new FormControl(this.loggedDataId.uid, Validators.required),
+      createdByName: new FormControl(this.loggedDataId.fullName),
+      projectId: new FormControl('', Validators.required),
+    });
+
+    // Optional: keep syncing when select changes
+    this.taskForm.get('assignedTo')?.valueChanges.subscribe((value: string) => {
+      const userName = this.userList.find((user) => user.uid === value);
+      this.taskForm
+        .get('assignedToName')
+        ?.setValue(userName, { emitEvent: false });
+    });
+
+    // Set the value of input based on the select element's value on page render
+    // const initialCreatedById = this.taskForm.get('createdBy')?.value;
+    // const createdName = this.userList.find(
+    //   (user) => user.uid === initialCreatedById
+    // );
+    // this.taskForm
+    //   .get('createdByName')
+    //   ?.setValue({ initialCreatedById, ...createdName });
+
+    // this.taskForm.get('createdBy')?.valueChanges.subscribe((value: string) => {
+    //   const createdName = this.userList.find((user) => user.uid === value);
+    //   this.taskForm
+    //     .get('createdByName')
+    //     ?.setValue(createdName, { emitEvent: false });
+    // });
   }
 
-  getAllUsers() {
-    this.masterService.getAllUsers().subscribe({
-      next: (res: IAPIResponse) => {
-        this.userList = res.data
-      },
-      error: (err: IAPIResponse) => {
-        this.toastr.error(err.message);
-      }
-    })
+  async getAllUsers(): Promise<void> {
+    try {
+      this.userList = await this.masterService.getAllUsers();
+    } catch (error: any) {
+      this.toastr.error(error.message);
+    }
   }
 
-  getAllProjects() {
-    this.masterService.getAllProjects().subscribe({
-      next: (res: IAPIResponse) => {
-        this.projectList = res.data;
-      },
-      error: (res: IAPIResponse) => {
-        this.toastr.error(res.message);
-      }
-    })
+  async getAllProjects() {
+    try {
+      this.projectList = await this.masterService.getAllProjects();
+    } catch (error: any) {
+      this.toastr.error(error.message);
+    }
   }
 
-  createTicket() {
+  async createTicket() {
     this.isCreateTicketLoading = true;
     const formValue = this.taskForm.value;
-    this.masterService.createTicket(formValue).subscribe({
-      next: (res: IAPIResponse) => {
-        if (res.result) {
-          this.toastr.success(res.message);
-          this.taskForm.patchValue({
-            ticketId: new FormControl(0),
-            createdDate: new FormControl(new Date()),
-            summary: new FormControl(''),
-            status: new FormControl(''),
-            description: new FormControl(''),
-            parentId: new FormControl(0),
-            storyPoint: new FormControl(0),
-            ticketGuid: new FormControl(''),
-            assignedTo: new FormControl(0),
-            projectId: new FormControl(0),
-            createdBy: this.loggedData.userId,
-          });
-          this.closeCreateTaskForm.next(false);
-          this.isCreateTicketLoading = false;
-          this.masterService.onCreateTicket$.next(true);
-        }
-      },
-      error: (err: IAPIResponse) => {
+
+    await this.masterService
+      .createTicket(formValue)
+      .then(() => {
+        this.toastr.success('Ticket Created Successfully!');
+        this.isCreateTicketLoading = false;
+        this.closeCreateTaskFormBtn();
+
+        this.masterService.createTicket$.next(true);
+        // this.taskForm.patchValue({
+        //   assignedToName: this.userList.find((user) => user.fullName),
+        // });
+      })
+      .catch((err) => {
         this.toastr.error(err.message);
         this.isCreateTicketLoading = false;
-      }
-    })
+      });
   }
 
   updateTicket() {
     this.isUpdateTicketLoading = true;
     const formValue = this.taskForm.value;
-    this.masterService.updateTicket(formValue).subscribe({
-      next: (res: IAPIResponse) => {
-        if (res.result) {
-          this.toastr.success(res.message);
-          this.taskForm.patchValue({
-            ticketId: new FormControl(0),
-            createdDate: new FormControl(new Date()),
-            summary: new FormControl(''),
-            status: new FormControl(''),
-            description: new FormControl(''),
-            parentId: new FormControl(0),
-            storyPoint: new FormControl(0),
-            ticketGuid: new FormControl(''),
-            assignedTo: new FormControl(0),
-            projectId: new FormControl(0),
-            createdBy: this.loggedData.userId,
-          });
-          this.isUpdateTicketLoading = false;
-          this.closeCreateTaskForm.next(false);
-          this.masterService.onCreateTicket$.next(true);
-        }
-      },
-      error: (err: IAPIResponse) => {
+
+    this.masterService
+      .updateTicket(formValue, this.ticketId)
+      .then(() => {
+        this.toastr.success('Ticket Updated Successfully!');
+        this.isUpdateTicketLoading = false;
+        this.closeCreateTaskFormBtn();
+
+        this.masterService.createTicket$.next(true);
+      })
+      .catch((err) => {
         this.toastr.error(err.message);
         this.isUpdateTicketLoading = false;
-      }
-    })
+      });
   }
-
 
   closeCreateTaskFormBtn() {
     this.closeCreateTaskForm.next(false);
+    this.taskForm.reset();
     this.closeCreateTaskForm.next(
       this.taskForm.patchValue({
-        ticketId: new FormControl(0),
-        createdDate: new FormControl(new Date()),
-        summary: new FormControl(''),
-        status: new FormControl(''),
-        description: new FormControl(''),
-        parentId: new FormControl(0),
-        storyPoint: new FormControl(0),
-        ticketGuid: new FormControl(''),
-        assignedTo: new FormControl(0),
-        projectId: new FormControl(0),
-        createdBy: this.loggedData.userId,
+        // createdDate: new FormControl(''),
+        // summary: new FormControl(''),
+        // status: new FormControl(''),
+        // description: new FormControl(''),
+        // assignedTo: new FormControl(''),
+        // projectId: new FormControl('0'),
+        createdById: this.loggedDataId.uid,
       })
-    )
+    );
   }
 }

@@ -5,9 +5,9 @@ import { MasterService } from '../service/master.service';
 export const canDeactivateTaskGuard: CanActivateFn = (route, state) => {
   const masterService = inject(MasterService);
   const router = inject(Router);
-  
+
   if (masterService.isUserLogin()) {
-    return true;
+    return false;
   } else {
     router.navigateByUrl('/login');
     return false;

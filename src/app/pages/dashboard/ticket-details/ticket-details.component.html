@@ -1,0 +1,30 @@
+<div class="mx-6 min-h-screen">
+  <div
+    class="rounded-lg bg-gray-300 border-2 border-gray-400 m-3 shadow-outer px-2 py-1 w-100 md:w-3/4 mx-auto"
+  >
+    <h1 class="text-center text-yellow-500 font-bold text-2xl">
+      Project Title: {{ ticketList?.projectId }}
+    </h1>
+    <p class="text-md font-bold text-black mb-3 mt-2">
+      <span class="font-bold uppercase text-white">Summary:</span>
+      {{ ticketList?.summary }}
+    </p>
+    <p class="text-md font-bold text-black mb-3">
+      <span class="font-bold uppercase text-white">Assigned To:</span>
+      {{ ticketList?.assignedToName.fullName }}
+    </p>
+    <p class="text-md font-bold text-black mb-3">
+      <span class="font-bold uppercase text-white">Report To:</span>
+      {{ ticketList?.createdByName }}
+    </p>
+    <p class="text-md font-bold text-black mb-3">
+      <span class="font-bold uppercase text-white">Status:</span>
+      {{ ticketList?.status }}
+    </p>
+    <p class="text-md font-bold text-black mb-3">
+      <span class="font-bold uppercase text-white">Description:</span>
+      {{ ticketList?.description }}
+    </p>
+    <p class="flex justify-end text-gray-700 text-lg">5 hrs</p>
+  </div>
+</div>

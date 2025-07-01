@@ -1,92 +1,49 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CreateTaskComponent } from './create-task/create-task.component';
-import {
-  IAPIResponse,
-  ITicket,
-  ProjectModel,
-  TicketModel,
-  UserModel,
-} from '../../model/TaskApp';
 import { MasterService } from '../../service/master.service';
+import { ITicket } from '../../model/TaskApp';
 import { ToastrService } from 'ngx-toastr';
+import { CreateTaskComponent } from '../dashboard/create-task/create-task.component';
 import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-single-user',
   standalone: true,
   imports: [CreateTaskComponent, RouterLink],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
+  templateUrl: './single-user.component.html',
+  styleUrl: './single-user.component.css',
 })
-export class DashboardComponent implements OnInit {
+export class SingleUserComponent implements OnInit {
+  user: any;
   masterService: MasterService = inject(MasterService);
   toastr: ToastrService = inject(ToastrService);
+  isLoggedIn: any = false;
+
+  ticketList: ITicket[] = [];
+  status: string[] = ['To Do', 'In Progress', 'Done'];
 
   isCreateTaskForm: boolean = false;
+
+  selectedTicket!: ITicket;
+  ticketId: any;
 
   isConfirmDelete: boolean = false;
   isDeleteTicketLoading: boolean = false;
 
-  projectList: ProjectModel[] = [];
-  ticketList: ITicket[] = [];
-  userList: UserModel[] = [];
-
-  status: string[] = ['To Do', 'In Progress', 'Done'];
-
-  selectedProjectData: ProjectModel | any;
-  loggedUserData: any;
-
-  selectedTicket!: ITicket;
-  ticketId: any;
-  yourWork!: ProjectModel;
-
   constructor() {
-    try {
-      const localData = localStorage.getItem('TaskUser');
-      if (localData != null) {
-        this.loggedUserData = JSON.parse(localData);
-      }
-    } finally {
+    const localUser = localStorage.getItem('TaskUser');
+    if (localUser != null) {
+      this.user = JSON.parse(localUser);
     }
   }
 
-  ngOnInit() {
-    this.getAllProjects();
-    this.getTicketsByProjectId(0);
+  ngOnInit(): void {
     this.getAllTickets();
 
-    this.masterService.onCreateTicket$.subscribe({
-      next: (res: any) => {
-        this.getTicketsByProjectId(this.selectedProjectData.projectId);
+    this.masterService.onLogin$.subscribe({
+      next: (res) => {
+        this.isLoggedIn = this.masterService.isUserLogin();
       },
     });
-
-    this.masterService.createTicket$.subscribe({
-      next: (res: any) => {
-        this.getAllTickets();
-      },
-    });
-
-    this.masterService.onChangeProject$.subscribe({
-      next: (res: any) => {
-        this.getTicketAssignedByUserId(this.loggedUserData.userId);
-      },
-    });
-  }
-
-  async getAllUsers(): Promise<void> {
-    try {
-      this.userList = await this.masterService.getAllUsers();
-    } catch (error: any) {
-      this.toastr.error(error.message);
-    }
-  }
-
-  getAllProjects() {}
-
-  setProject(obj: ProjectModel) {
-    // this.getTicketsByProjectId(obj.projectId);
-    this.selectedProjectData = obj;
   }
 
   async getAllTickets() {
@@ -97,12 +54,14 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  getTicketsByProjectId(id: number) {}
-
-  getTicketAssignedByUserId(id: number): any {}
-
   filterTicket(status: string) {
     return this.ticketList.filter((ticket) => ticket.status == status);
+  }
+
+  userTicket(status: string) {
+    return this.filterTicket(status).filter(
+      (ticket) => ticket.assignedTo == this.user.uid
+    );
   }
 
   onEdit(ticketObj: ITicket) {
@@ -138,11 +97,6 @@ export class DashboardComponent implements OnInit {
         this.toastr.error(err.message);
         this.isDeleteTicketLoading = false;
       });
-  }
-
-  openCreateTaskForm() {
-    this.isCreateTaskForm = true;
-    this.ticketId = undefined;
   }
 
   closeCreateTaskForm() {

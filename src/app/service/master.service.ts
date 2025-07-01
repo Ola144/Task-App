@@ -1,14 +1,43 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { IAPIResponse, ProjectModel, TicketModel, UserModel } from '../model/TaskApp';
+import { BehaviorSubject, merge, Observable, Subject } from 'rxjs';
+import {
+  IAPIResponse,
+  IProject,
+  ITicket,
+  LoginModel,
+  ProjectModel,
+  TicketModel,
+  UserModel,
+} from '../model/TaskApp';
+import {
+  addDoc,
+  collection,
+  doc,
+  setDoc,
+  Timestamp,
+  Firestore,
+  getDoc,
+  collectionData,
+  query,
+  where,
+  getDocs,
+  onSnapshot,
+  QuerySnapshot,
+  updateDoc,
+  deleteDoc,
+  DocumentReference,
+} from '@angular/fire/firestore';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MasterService {
-  apiUrl: string = '/api/Jira/';
-
   http: HttpClient = inject(HttpClient);
 
   userData!: UserModel;
@@ -16,85 +45,131 @@ export class MasterService {
   // BehaviourSubject to read localStorage again after login
   onLogin$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
+  createTicket$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
   // Subject to get the ticket created to dashboard
   onCreateTicket$: Subject<any> = new Subject();
   onChangeProject$: Subject<any> = new Subject();
 
-  constructor() {
-    
+  constructor(private firestore: Firestore, private auth: Auth) {
+    const usersRef = collection(this.firestore, 'users');
   }
-  
-  isUserLogin(){
-    try {
-      return !!localStorage.getItem('taskAppUser')
-    } catch (err) {
-      return console.error(err);
-    }
+
+  isUserLogin() {
+    return !!localStorage.getItem('TaskUser');
   }
 
   // User API Crud Operation
-  getAllUsers(): Observable<IAPIResponse>{
-    return this.http.get<IAPIResponse>(`${this.apiUrl}GetAllUsers`);
+  async getAllUsers() {
+    const userRef = collection(this.firestore, 'users');
+    const snapshot = await getDocs(userRef);
+    return snapshot.docs.map((doc) => ({ ...(doc.data() as UserModel) }));
   }
 
-  createNewUser(obj: UserModel): Observable<IAPIResponse>{
-    return this.http.post<IAPIResponse>(`${this.apiUrl}CreateUser`, obj);
+  async updateUser(userObj: any, userId: string) {
+    const userDocRef = doc(this.firestore, 'users', userId);
+    await updateDoc(userDocRef, userObj, { merge: true });
   }
 
-  userLogin(obj: any){
-    return this.http.post(`${this.apiUrl}Login`, obj, {
-      headers: { 
-        'accept': 'text/plain', 
-        'Content-Type': 'application/json-patch+json'
-      }
+  async deleteUser(userId: string) {
+    const userDocRef = doc(this.firestore, 'users', userId);
+    await deleteDoc(userDocRef);
+  }
+
+  userLogout() {
+    return localStorage.removeItem('TaskUser'), this.auth.signOut();
+  }
+
+  async createNewUser(userObj: UserModel): Promise<void> {
+    let { emailId, password, fullName, role } = userObj;
+    const cred = await createUserWithEmailAndPassword(
+      this.auth,
+      emailId,
+      password
+    );
+    const uid = cred.user.uid;
+    await setDoc(doc(this.firestore, 'users', uid), {
+      uid: uid,
+      emailId,
+      password,
+      fullName,
+      role,
+      time: Timestamp.now(),
+      date: new Date().toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+      }),
     });
   }
 
-  updateExistingUser(obj: UserModel): Observable<IAPIResponse>{
-    return this.http.put<IAPIResponse>(`${this.apiUrl}UpdateUser`, obj);
-  }
+  async userLogin(obj: UserModel) {
+    const { emailId, password, fullName, role } = obj;
+    const cred = await signInWithEmailAndPassword(this.auth, emailId, password);
+    const uid = cred.user.uid;
 
-  deleteExistingUserById(id: number): Observable<IAPIResponse>{
-    return this.http.delete<IAPIResponse>(`${this.apiUrl}DeleteUserById?id=${id}`)
+    // Fetch user document from firestore
+    const userDocRef = doc(this.firestore, 'users', uid);
+    const userSnap = await getDoc(userDocRef);
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      localStorage.setItem('TaskUser', JSON.stringify(userData));
+      return userData;
+    } else {
+      throw new Error('User data not found in Firestore!');
+    }
   }
 
   // Project API Crud Operation
-  getAllProjects(): Observable<IAPIResponse>{
-    return this.http.get<IAPIResponse>(`${this.apiUrl}GetAllProjects`);
+  async getAllProjects() {
+    const projectRef = collection(this.firestore, 'projects');
+    const snapshot = await getDocs(projectRef);
+    return snapshot.docs.map((doc) => ({ ...(doc.data() as ProjectModel) }));
   }
 
-  createNewProject(obj: ProjectModel): Observable<IAPIResponse> {
-    return this.http.post<IAPIResponse>(`${this.apiUrl}CreateProject`, obj);
+  async createNewProject(obj: any) {
+    const projectRef = collection(this.firestore, 'projects');
+    const newDocRef: DocumentReference = doc(projectRef);
+    const projectWithId = { projectId: newDocRef.id, ...obj };
+    await setDoc(newDocRef, projectWithId);
   }
 
-  updateExistingProject(obj: ProjectModel): Observable<IAPIResponse> {
-    return this.http.put<IAPIResponse>(`${this.apiUrl}UpdateProject`, obj);
+  async updateExistingProject(obj: any, projectId: string): Promise<void> {
+    const projectDocRef = doc(this.firestore, 'projects', projectId);
+    await updateDoc(projectDocRef, obj, { merge: true });
   }
 
-  deleteProjectById(id: number): Observable<IAPIResponse>{
-    return this.http.delete<IAPIResponse>(`${this.apiUrl}DeleteProjectById?id=${id}`)
+  deleteProjectById(projectId: number) {
+    const projectDocRef = doc(this.firestore, 'projects', projectId.toString());
+    return deleteDoc(projectDocRef);
   }
 
   // Ticket API Crud Operation
-  createTicket(obj: TicketModel): Observable<IAPIResponse> {
-    return this.http.post<IAPIResponse>(`${this.apiUrl}CreateTicket`, obj);
+  async createTicket(obj: TicketModel) {
+    const ticketRef = collection(this.firestore, 'tickets');
+    const newDocRef: DocumentReference = doc(ticketRef);
+    const ticketWithId = { ticketId: newDocRef.id, ...obj };
+    await setDoc(newDocRef, ticketWithId);
   }
 
-  getTicketsByProjectId(id: number): Observable<IAPIResponse>{
-    return this.http.get<IAPIResponse>(`${this.apiUrl}GetTicketsByProjectId?projectid=${id}`);
+  async getAllTickets() {
+    const ticketRef = collection(this.firestore, 'tickets');
+    const snapshot = await getDocs(ticketRef);
+    return snapshot.docs.map((doc) => ({ ...(doc.data() as ITicket) }));
   }
 
-  getTicketsAssignedByUserId(id: number): Observable<IAPIResponse>{
-    return this.http.get<IAPIResponse>(`${this.apiUrl}GetTicketsAssignedByUserId?userId=${id}`);
+  getTicketsByProjectId(id: number) {}
+
+  getTicketsAssignedByUserId(id: number) {}
+
+  async updateTicket(obj: any, ticketId: string) {
+    const ticketDocRef = doc(this.firestore, 'tickets', ticketId);
+    await updateDoc(ticketDocRef, obj, { merge: true });
   }
 
-  updateTicket(obj: TicketModel): Observable<IAPIResponse> {
-    return this.http.put<IAPIResponse>(`${this.apiUrl}UpdateTicket`, obj);
+  async deleteTicketById(ticketId: string) {
+    const ticketDocRef = doc(this.firestore, 'tickets', ticketId);
+    await deleteDoc(ticketDocRef);
   }
-
-  deleteTicketById(id: number): Observable<IAPIResponse>{
-    return this.http.delete<IAPIResponse>(`${this.apiUrl}DeleteTicketById?id=${id}`)
-  }
-
-
 }

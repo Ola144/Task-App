@@ -4,58 +4,84 @@ export interface IAPIResponse {
   data: any;
 }
 
+export interface IProject {
+  projectId?: string;
+  projectName: string;
+  shortName: string;
+  createdDate: Date;
+}
+
+export interface ITicket {
+  ticketId: string;
+  createdDate: Date;
+  summary: string;
+  status: string;
+  description: string;
+  assignedTo: string;
+  assignedToName: any;
+  createdBy: string;
+  createdByName: any;
+  projectId: string;
+}
+
 export class ProjectModel {
-  projectId: number;
   projectName: string;
   shortName: string;
   createdDate: Date;
 
-  constructor(){
-    this.projectId = 0;
+  constructor() {
     this.projectName = '';
     this.shortName = '';
     this.createdDate = new Date();
   }
 }
 
-export class UserModel{
-  userId: number;
+export class UserModel {
+  uid: string;
   emailId: string;
   fullName: string;
   password: string;
+  role: string;
 
   constructor() {
-    this.userId = 0;
+    this.uid = '';
     this.emailId = '';
     this.fullName = '';
+    this.password = '';
+    this.role = 'user';
+  }
+}
+
+export class LoginModel {
+  emailId: string;
+  password: string;
+
+  constructor() {
+    this.emailId = '';
     this.password = '';
   }
 }
 
 export class TicketModel {
-  ticketId: number;
   createdDate: Date;
   summary: string;
   status: string;
   description: string;
-  parentId: number;
-  storyPoint: number;
-  ticketGuid: string;
-  assignedTo: number;
-  createdBy: number;
-  projectId: number
+  assignedTo: string;
+  assignedToName: string;
+  createdByName: string;
+  createdBy: string;
+  projectId: string;
 
   constructor() {
-    this.ticketId = 0;
     this.createdDate = new Date();
     this.summary = '';
     this.status = '';
     this.description = '';
-    this.parentId = 0;
-    this.storyPoint = 0;
-    this.ticketGuid = '';
-    this.assignedTo = 0;
-    this.createdBy = 0;
-    this.projectId = 0;
+    this.assignedTo = '';
+    this.assignedToName = '';
+    this.createdBy = '';
+    this.createdByName = '';
+    this.projectId = '';
   }
 }

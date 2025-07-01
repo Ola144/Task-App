@@ -1,17 +1,17 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MasterService } from '../../service/master.service';
-import { IAPIResponse, UserModel } from '../../model/TaskApp';
+import { IAPIResponse, LoginModel, UserModel } from '../../model/TaskApp';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr'
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   masterService: MasterService = inject(MasterService);
@@ -24,42 +24,32 @@ export class LoginComponent {
   isLoginLoading: boolean = false;
   isShowIcon: boolean = false;
 
-  userObj: any = {
-      userId: 0,
-      emailId: "",
-      fullName: "",
-      password: ""
-  }
+  userObj: UserModel = new UserModel();
 
   loginUser() {
     this.isLoginLoading = true;
-    this.masterService.userLogin(this.userObj).subscribe({
-      next: (res: any) => {
-        if (res.result) {
-          this.isLoginLoading = false;
-          try{
-            localStorage.setItem("taskAppUser", JSON.stringify(res.data));
-          } finally { }
-          this.router.navigateByUrl('/dashboard');
-          this.toastr.success(res.message);
-          this.masterService.onLogin$.next(true);
-        }
-      },
-      error: (err: any)=>{
-          this.toastr.error(err.message);
-          this.isLoginLoading = false;
-      }
-    })
+    this.masterService
+      .userLogin(this.userObj!)
+      .then(() => {
+        this.toastr.success('Login Successfully!');
+        this.masterService.onLogin$.next(true);
+        this.router.navigateByUrl('/dashboard');
+        this.isLoginLoading = false;
+      })
+      .catch((err) => {
+        this.toastr.error(err.message);
+        console.log(err.message);
+        this.isLoginLoading = false;
+      });
   }
 
   showLoginPassword() {
-    if (this.loginPassword?.nativeElement.type == "password") {
-      this.loginPassword.nativeElement.type = "text";
+    if (this.loginPassword?.nativeElement.type == 'password') {
+      this.loginPassword.nativeElement.type = 'text';
       this.isShowIcon = true;
     } else {
-      this.loginPassword.nativeElement.type = "password";
+      this.loginPassword.nativeElement.type = 'password';
       this.isShowIcon = false;
     }
   }
-
 }

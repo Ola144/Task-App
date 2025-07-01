@@ -1,4 +1,11 @@
-import { Component, ElementRef, inject, OnInit, ViewChild, Input } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  ViewChild,
+  Input,
+} from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MasterService } from '../../service/master.service';
 import { IAPIResponse, ProjectModel, UserModel } from '../../model/TaskApp';
@@ -9,7 +16,7 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './side-nav.component.html',
-  styleUrl: './side-nav.component.css'
+  styleUrl: './side-nav.component.css',
 })
 export class SideNavComponent implements OnInit {
   masterService: MasterService = inject(MasterService);
@@ -28,29 +35,21 @@ export class SideNavComponent implements OnInit {
     // this.getAllProjects();
 
     try {
-      const localData = localStorage.getItem('taskAppUser');
+      const localData = localStorage.getItem('TaskUser');
       if (localData != null) {
         this.userData = JSON.parse(localData);
       }
-    } finally { }
+    } finally {
+    }
 
     this.masterService.onLogin$.subscribe({
       next: (res) => {
         this.isLoggedIn = this.masterService.isUserLogin();
-      }
-    })
+      },
+    });
   }
 
-  getAllProjects() {
-    this.masterService.getAllProjects().subscribe({
-      next: (res: IAPIResponse) => {
-        this.projectList = res.data;
-      },
-      error: (res: IAPIResponse) => {
-        this.toastr.error(res.message);
-      }
-    })
-  }
+  getAllProjects() {}
 
   yourWorkMethod(obj: ProjectModel) {
     this.masterService.onChangeProject$.next(obj);
@@ -61,12 +60,14 @@ export class SideNavComponent implements OnInit {
   }
 
   logOut() {
-    try {
-      localStorage.removeItem('taskAppUser');
-    } finally { }
-
-    this.router.navigateByUrl('/login');
-    this.userData = undefined;
+    this.masterService
+      .userLogout()
+      .then(() => {
+        this.router.navigateByUrl('/login');
+        this.userData = undefined;
+      })
+      .catch((err) => {
+        this.toastr.error(err.message);
+      });
   }
-
 }

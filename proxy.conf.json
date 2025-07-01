@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "https://freeapi.miniprojectideas.com",
+    "target": "",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "Debug"
