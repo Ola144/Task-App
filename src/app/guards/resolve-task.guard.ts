@@ -3,16 +3,16 @@ import { ResolveFn, Router } from '@angular/router';
 import { MasterService } from '../service/master.service';
 
 export const resolveProject: ResolveFn<any> = () => {
-    const masterService = inject(MasterService);
-    return masterService.getAllProjects();
+  const masterService = inject(MasterService);
+  return masterService.getAllProjects();
 };
 
 export const resolveTicket: ResolveFn<any> = () => {
-    const masterService = inject(MasterService);
-    return masterService.getTicketsByProjectId(156);
+  const masterService = inject(MasterService);
+  return masterService.getAllTickets();
 };
 
 export const resolveUsers: ResolveFn<any> = () => {
-    const masterService = inject(MasterService);
-    return masterService.getAllUsers();
+  const masterService = inject(MasterService);
+  return masterService.getAllUsers();
 };

@@ -26,7 +26,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    // canActivate: [canDeactivateTaskGuard],
+    canActivate: [canDeactivateTaskGuard],
     children: [
       {
         path: 'dashboard',
@@ -51,7 +51,7 @@ export const routes: Routes = [
       {
         path: 'user',
         component: SingleUserComponent,
-        // resolve: { projects: resolveProject },
+        resolve: { projects: resolveProject },
       },
       {
         path: 'user/:ticketId',

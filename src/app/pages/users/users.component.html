@@ -1,4 +1,4 @@
-<div class="m-6">
+<div class="mx-6 mt-3 min-h-screen">
   <div class="flex justify-between items-center mb-5 mx-10 stick">
     <h2 class="text-2xl text-dark-800 font-bold">Users List</h2>
     <div class="gap-2">
@@ -22,7 +22,7 @@
       (input)="filterUser(inputText.value)"
     />
   </div>
-  <div class="overflow-auto mt-5 mx-4 hidden lg:block">
+  <div class="overflow-auto mt-5 mb-4 mx-4 hidden lg:block">
     <table class="border-collapse border border-gray-400 w-full">
       <thead class="bg-gray-900 text-white">
         <tr>
@@ -70,7 +70,7 @@
     </table>
   </div>
 
-  <div class="w-full mt-5 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:hidden">
+  <div class="w-full mt-5 mb-4 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:hidden">
     @for (item of filteredUser; track $index) {
     <div class="bg-white px-5 pb-4 rounded-lg shadow-lg relative">
       <span
